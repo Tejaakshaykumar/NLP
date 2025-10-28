@@ -48,7 +48,7 @@ ${fileList.join("\n")}
   console.log("Generating README with files:", fileList);
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=AIzaSyBvVzzp_FNquKzHcDZ7V1mil13jk34JIZ0`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyA3BBjWBd5PQH3qZsgW4T-7K2R7zQwN1YM`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -64,5 +64,50 @@ ${fileList.join("\n")}
   return (
     data?.candidates?.[0]?.content?.parts?.[0]?.text ||
     "Error generating README."
+  );
+}
+
+export async function improveReadme(files: any[], currentReadme: string, improvementPrompt: string) {
+  const fileList = files.map((f) => f.path).slice(0, 50); // For context
+  
+  const systemPrompt = `
+You are an expert README.md improver. Your task is to take an existing README content, a user's specific enhancement request, and project file context to produce a new, improved README.md.
+**Crucial Rules:**
+1.  Apply the user's **enhancement request** precisely.
+2.  Maintain the existing content's structure and all required technical sections (Installation, Tech Stack, etc.) unless the user's request explicitly modifies them.
+3.  Use the project files and existing README as context, but strictly output **only the final, improved README.md content** as valid GitHub Markdown. Do not include any reasoning, pre-amble, or code fences around the final output.
+4.  Ensure all formatting rules are followed: **bash** code blocks for shell commands, strong emphasis for subheadings, and the specific screenshot format.
+
+**Project Files Context:**
+${fileList.join("\n")}
+
+**Current README.md:**
+---
+${currentReadme}
+---
+
+**User Enhancement Request:**
+${improvementPrompt}
+  `;
+
+  console.log("Improving README with prompt:", improvementPrompt);
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyA3BBjWBd5PQH3qZsgW4T-7K2R7zQwN1YM`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [
+          { role: "user", parts: [{ text: systemPrompt }] },
+        ],
+      }),
+    }
+  );
+
+  const data = await res.json();
+  return (
+    data?.candidates?.[0]?.content?.parts?.[0]?.text ||
+    "Error improving README."
   );
 }

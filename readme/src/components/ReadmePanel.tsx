@@ -1,8 +1,9 @@
 import { useState,useEffect } from "react";
 import { generateReadme } from "../api";
-import { FileText, Sparkles, Eye, Code, Copy, Download } from "lucide-react";
+import { FileText, Sparkles, Eye, Code, Copy, Download,Zap } from "lucide-react";
 import { marked, type Tokens, Renderer } from "marked";
 import CompareReadme from "./CompareReadme";
+import ReadmeImprover from "./ReadmeImprover";
 
 interface Props {
   repo: string;
@@ -21,7 +22,7 @@ export default function ReadmePanel({
   setLoading,
   fileBlobs
 }: Props) {
-  const [viewMode, setViewMode] = useState<"preview" | "markdown" | "compare">("preview");
+  const [viewMode, setViewMode] = useState<"preview" | "markdown" | "compare" | "improve">("preview");
   const [copied, setCopied] = useState(false);
   const [imageUrls, setImageUrls] = useState<Map<string, string>>(new Map());
   const renderer = new Renderer();
@@ -55,6 +56,7 @@ export default function ReadmePanel({
   const readmeContent = await generateReadme(files);
   setReadme(readmeContent);
   setLoading(false);
+  setViewMode("preview");
 };
 
   const handleCopy = () => {
@@ -123,14 +125,26 @@ const normalizeReadme = (md: string) => {
         href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.2.0/github-markdown.min.css"
       />
       <div className="flex items-center justify-between mb-6">
-        <button
-          onClick={handleGenerate}
-          disabled={!repo || files.length === 0}
-          className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
-        >
-          <Sparkles size={16} />
-          Generate README
-        </button>
+   <div className="flex items-center gap-4"> {/* Added a wrapper div for grouping */}
+      <button
+       onClick={handleGenerate}
+       disabled={!repo || files.length === 0}
+      className="flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
+      >
+       <Sparkles size={16} />
+       Generate README
+      </button>
+      {/* NEW IMPROVE BUTTON */}
+      {readme && (
+      <button
+       onClick={() => setViewMode("improve")}
+       className="flex items-center gap-2 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition-colors font-medium"
+      >
+       <Zap size={16} />
+       Improve
+      </button>
+      )}
+   </div>
       </div>
 
       {/* Content Area */}
@@ -172,7 +186,16 @@ const normalizeReadme = (md: string) => {
                 <Eye size={14} />
                 Compare
               </button>
-            </div>
+            {viewMode === "improve" && (
+              <button
+               onClick={() => setViewMode("improve")} // Keeps view mode on improve
+               className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 text-white"
+              >
+              <Zap size={14} />
+              Improve
+            </button>
+            )}
+          </div>
 
             <div className="flex items-center gap-2">
               <button
@@ -209,8 +232,16 @@ const normalizeReadme = (md: string) => {
                   {readme}
                 </pre>
               </div>
-            ) : (
-                <CompareReadme generatedReadme={readme} />
+            ) : viewMode === "compare" ? (
+              <CompareReadme generatedReadme={readme} />
+            ) : ( // New: Render ReadmeImprover
+              <ReadmeImprover
+               currentReadme={readme}
+               setReadme={setReadme}
+               setLoading={setLoading}
+               files={files}
+               setViewMode={setViewMode}
+              />
             )}
           </div>
         </div>
