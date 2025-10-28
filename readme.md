@@ -1,22 +1,20 @@
----
-
 ## 🚀 Project Overview
 
-This project is a **README Generator and Comparator Tool**.
-It helps users:
+### This project is a **README Generator and Comparator Tool**.
+### It helps users:
 
 1. **Generate a README** automatically (AI-powered) from a GitHub repo or local files.
 2. **Preview, edit, and download** the generated README.
 3. **Upload their own README** and compare it with the generated one using AI-driven analysis.
 
-The **comparison** uses multiple NLP and readability metrics:
+### The **comparison** uses multiple NLP and readability metrics:
 
 * **Text similarity** (keyword overlap and semantic similarity).
 * **Topic modeling** (discovering key topics/themes).
 * **Readability metrics** (how easy or hard the text is to read).
 * **Named entity recognition (NER)** (extracting people, organizations, tech names, etc.).
 
-So, the tool essentially helps developers **improve their documentation quality** using AI.
+### So, the tool essentially helps developers **improve their documentation quality** using AI.
 
 ---
 
@@ -163,3 +161,16 @@ pip install -r requirements.txt
 
 ### 4. Run FastAPI server
 uvicorn main:app --host 127.0.0.1 --port 8000
+
+--- 
+
+## Setting up Frontend
+cd readme
+
+
+### Install all dependencies
+npm install
+
+
+### Start the development server
+npm run dev
